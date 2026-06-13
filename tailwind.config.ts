@@ -18,6 +18,7 @@ const config: Config = {
         charcoal: "#2B2724",
         graphite: "#191714",
         accent: "#9A4A2E",
+        burgundy: "#5E2118",
       },
       fontFamily: {
         // When licensed fonts are added (see README), drop the files into

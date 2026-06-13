@@ -1,95 +1,185 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { cx } from "@/lib/utils";
 import {
-  INTRO_EXIT_EVENT,
-  INTRO_HOLD_MS,
+  FLASH_LOOP_MS,
   INTRO_SESSION_KEY,
   PANEL_DURATION,
   PANEL_EASE,
+  REVEAL_DELAY_MS,
+  REVEAL_DURATION_MS,
 } from "@/lib/intro";
 
 /**
- * Feature 2A — Septiembre Arquitectura-inspired intro.
+ * Septiembre Arquitectura-inspired intro.
  *
- * The company name arrives line by line through a masked rise (each line
- * lifts out of an overflow-hidden slot), followed by the first studio
- * statement with a quiet opacity/vertical entrance. The whole sequence is
- * an introduction of identity and text together — no separate splash.
+ * Cream field, large burgundy serif wordmark, and a central vertical image
+ * plate. Sequence: the name rises in uniform burgundy; then the plate loads
+ * in 0→100% (a clip rising from its bottom edge); from then on it crossfades
+ * to a new project photo at a constant calm rhythm until the user scrolls.
  *
+ * The wordmark is drawn in perfectly aligned layers: a burgundy copy under
+ * the plate, and above the plate two copies clipped to its exact rectangle
+ * that act as a clipping mask — white glyphs with mix-blend-mode:difference
+ * fill the letters with the photo inverted, and an aligned copy with
+ * mix-blend-mode:saturation strips the colour, leaving an inverted
+ * grey/black/white photo inside the letterforms while the outer letters
+ * stay burgundy. Plate and clips share the same inset geometry
+ * (PLATE_RECT / PLATE_CLIP), so registration is exact at every breakpoint
+ * with no JS measuring.
+ *
+ * - Holds indefinitely, flashing a new project photo every second, until
+ *   the user scrolls (wheel / touch / key / click) — then the panel lifts.
  * - Plays once per browser session (sessionStorage), homepage only.
- * - Click / any key skips it instantly.
  * - prefers-reduced-motion: the overlay never appears (CSS-hidden even
- *   before hydration), so those users see the page immediately.
- * - aria-hidden: the page's own <h1> and statement remain the canonical
- *   text for screen readers — nothing is read twice. The intro text is
- *   still real, selectable text.
- *
- * The exit is the Feature 2B roll-down: see EXIT_TRANSITION below and
- * components/HeroReveal.tsx for the hero's synchronized counter-settle.
+ *   before hydration) — those users see the page immediately.
+ * - aria-hidden: the page's own <h1> remains the canonical text for screen
+ *   readers; the intro text is still real, selectable text.
  */
 
-const NAME_LINES = ["Hermansson", "Hiller", "Lundberg"];
+const FLASH_IMAGES = [
+  "/hhl-images/hero/kc-05.webp",
+  "/hhl-images/hero/barkarby-02.webp",
+  "/hhl-images/hero/skuru-10.webp",
+  "/hhl-images/hero/barkarby-01.webp",
+  "/hhl-images/hero/sp-05.webp",
+  "/hhl-images/hero/sp-03.webp",
+  "/hhl-images/hero/barkarby-12.webp",
+  "/hhl-images/hero/stairhall.webp",
+  "/hhl-images/hero/skuru-02.webp",
+];
+
+/** Three steps down, left → center → right. */
+const NAME_LINES = [
+  { text: "Hermansson", align: "text-left" },
+  { text: "Hiller", align: "text-center" },
+  { text: "Lundberg", align: "text-right" },
+];
 const CAPTION = "Arkitekter — Stockholm";
-const STATEMENT =
-  "We work toward an architecture of presence, character and complexity.";
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
-const HOLD_MS = INTRO_HOLD_MS;
-const SESSION_KEY = INTRO_SESSION_KEY;
-
-/**
- * Feature 2B — the Sergison Bates-style roll-down: the intro is a solid
- * panel that lifts vertically off the viewport (transform-only), exposing
- * the real hero underneath from the top edge downward. The inner text lags
- * 120px behind the panel, which gives the surface depth — a page being
- * turned rather than a div being translated.
- */
 const EXIT_TRANSITION = { duration: PANEL_DURATION, ease: PANEL_EASE };
 
+/**
+ * The plate rectangle and the clip-path of the upper text layers MUST stay
+ * in sync — both express "central band, 19% in from top/bottom, X% from the
+ * sides" at each breakpoint. Kept deliberately narrow so the burgundy
+ * letterforms read clearly on both sides of the plate.
+ */
+const PLATE_RECT = "inset-y-[19%] inset-x-[30%] sm:inset-x-[37%] lg:inset-x-[40%]";
+const PLATE_CLIP =
+  "[clip-path:inset(19%_30%)] sm:[clip-path:inset(19%_37%)] lg:[clip-path:inset(19%_40%)]";
+
+/**
+ * Loading reveal: a clip on the plate+masked-text group rises from the
+ * plate's bottom edge (81% from the top) to its top edge (19%) — the picture
+ * "loads" 0→100% and the letter fill arrives with it. Vertical insets here
+ * must match PLATE_RECT's inset-y.
+ */
+const REVEAL_FROM = "inset(81% 0% 0% 0%)";
+const REVEAL_TO = "inset(19% 0% 0% 0%)";
+
+/**
+ * The wordmark is rendered in multiple aligned layers (burgundy below the
+ * plate, the photo-fill blend copies above it). Identical markup + identical
+ * tween timings keep all copies frame-aligned. Lines appear with a plain
+ * staggered fade — no movement.
+ */
+function Wordmark({ className }: { className?: string }) {
+  return (
+    <div
+      className={cx("absolute inset-0 flex flex-col justify-center px-[4vw]", className)}
+    >
+      {NAME_LINES.map((line, i) => (
+        <motion.p
+          key={line.text}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 + i * 0.12, ease: EASE }}
+          className={cx(
+            "font-serif text-[clamp(3rem,13.5vw,10.5rem)] font-light leading-[1.02]",
+            line.align
+          )}
+        >
+          {line.text}
+        </motion.p>
+      ))}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.7, ease: EASE }}
+        className="t-overline mt-6 text-center !text-current opacity-80"
+      >
+        {CAPTION}
+      </motion.p>
+    </div>
+  );
+}
+
 export default function HomeIntro() {
-  const reduce = useReducedMotion();
   const [active, setActive] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const timer = useRef<number | null>(null);
+  const [frame, setFrame] = useState(0);
 
   // Decide before first client paint whether the intro should run at all.
   useLayoutEffect(() => {
     setMounted(true);
     try {
-      if (reduce || sessionStorage.getItem(SESSION_KEY) === "1") {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce || sessionStorage.getItem(INTRO_SESSION_KEY) === "1") {
         setActive(false);
-        return;
       }
     } catch {
       /* storage unavailable — play the intro */
     }
-  }, [reduce]);
+  }, []);
 
   const finish = () => {
     try {
-      sessionStorage.setItem(SESSION_KEY, "1");
+      sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     } catch {
       /* ignore */
     }
-    window.dispatchEvent(new Event(INTRO_EXIT_EVENT));
     setActive(false);
   };
 
-  // Scroll lock + auto-finish + skip on input.
+  // Slideshow rhythm: the first photo rides the loading reveal; once the
+  // plate is full, a new project photo every FLASH_LOOP_MS — the intro holds
+  // this constant, calm shifting until the user scrolls.
+  useEffect(() => {
+    if (!active || !mounted) return;
+    let i = 0;
+    let loop: number | undefined;
+    const start = window.setTimeout(() => {
+      loop = window.setInterval(() => {
+        i += 1;
+        setFrame(i % FLASH_IMAGES.length);
+      }, FLASH_LOOP_MS);
+    }, REVEAL_DELAY_MS + REVEAL_DURATION_MS + 200);
+    return () => {
+      window.clearTimeout(start);
+      if (loop) window.clearInterval(loop);
+    };
+  }, [active, mounted]);
+
+  // Scroll lock; the intro stays until a scroll intent (wheel, touch swipe,
+  // key, click) releases it — no timed exit.
   useEffect(() => {
     if (!active || !mounted) return;
     document.documentElement.style.overflow = "hidden";
-    timer.current = window.setTimeout(finish, HOLD_MS);
-    const skip = () => finish();
-    window.addEventListener("pointerdown", skip);
-    window.addEventListener("keydown", skip);
+    const release = () => finish();
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("pointerdown", release);
+    window.addEventListener("keydown", release);
     return () => {
       document.documentElement.style.overflow = "";
-      if (timer.current) window.clearTimeout(timer.current);
-      window.removeEventListener("pointerdown", skip);
-      window.removeEventListener("keydown", skip);
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchmove", release);
+      window.removeEventListener("pointerdown", release);
+      window.removeEventListener("keydown", release);
     };
   }, [active, mounted]);
 
@@ -99,60 +189,78 @@ export default function HomeIntro() {
         <motion.div
           aria-hidden="true"
           exit={{ y: "-100%", transition: EXIT_TRANSITION }}
-          className="fixed inset-0 z-[60] flex flex-col justify-end bg-warmwhite motion-reduce:hidden"
+          className="fixed inset-0 z-[60] overflow-hidden bg-warmwhite motion-reduce:hidden"
         >
+          {/* Interior lags the panel slightly on exit — a page being turned. */}
           <motion.div
-            exit={{ y: 120, transition: EXIT_TRANSITION }}
-            className="site pb-16 lg:pb-20"
+            exit={{ y: 96, transition: EXIT_TRANSITION }}
+            className="absolute inset-0"
           >
-            {/* Company name — masked line-by-line rise */}
-            <div className="mb-8 lg:mb-10">
-              {NAME_LINES.map((line, i) => (
-                <div key={line} className="overflow-hidden">
-                  <motion.p
-                    initial={{ y: "110%", opacity: 0 }}
-                    animate={{ y: "0%", opacity: 1 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: 0.25 + i * 0.14,
-                      ease: EASE,
-                    }}
-                    className="font-serif text-[13vw] font-light leading-[1.04] text-graphite sm:text-6xl lg:text-7xl"
-                  >
-                    {line}
-                  </motion.p>
-                </div>
-              ))}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 1.05, ease: EASE }}
-                className="t-overline mt-4"
-              >
-                {CAPTION}
-              </motion.p>
-            </div>
+            {/* 1 — burgundy wordmark, under the plate. Reads uniform burgundy
+                until the loading reveal brings the plate + inversion up. */}
+            <Wordmark className="z-10 text-burgundy" />
 
-            {/* First statement — quiet opacity + vertical arrival */}
-            <div className="overflow-hidden">
-              <motion.p
-                initial={{ y: 14, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.4, ease: EASE }}
-                className="max-w-xl font-serif text-lg font-light leading-relaxed text-charcoal sm:text-xl lg:text-2xl"
-              >
-                {STATEMENT}
-              </motion.p>
-            </div>
+            {/* 2+3 — plate and masked wordmark share one loading reveal:
+                a clip rising from the plate's bottom edge to its top edge,
+                so the picture arrives 0→100% and the letter fill arrives
+                with it. The letters crossing the plate are filled with the
+                photo itself, inverted and desaturated, via two aligned
+                blend layers (difference inverts, saturation removes colour)
+                — registered with the photo behind by construction. */}
+            <motion.div
+              initial={{ clipPath: REVEAL_FROM }}
+              animate={{ clipPath: REVEAL_TO }}
+              transition={{
+                duration: REVEAL_DURATION_MS / 1000,
+                delay: REVEAL_DELAY_MS / 1000,
+                ease: EASE,
+              }}
+              className="pointer-events-none absolute inset-0 z-20"
+            >
+              {/* the vertical image plate — slow slideshow of project photos,
+                  crossfading gently between slides (no hard cuts) */}
+              <div className={cx("absolute overflow-hidden bg-stone", PLATE_RECT)}>
+                {FLASH_IMAGES.map((src, i) => (
+                  // Plain <img>, all mounted eagerly so every slide is
+                  // already decoded — no blank frames, no layout shift.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    loading="eager"
+                    decoding="async"
+                    className={cx(
+                      "absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out",
+                      i === frame ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* wordmark over the plate, filled with the photo behind it:
+                  white glyphs + difference = the photo inverted inside the
+                  letters; a second aligned copy + saturation = desaturated
+                  to grey/black/white. Both clipped to the plate rectangle,
+                  so the fill follows every crossfade automatically. */}
+              <Wordmark
+                className={cx("z-10 text-white [mix-blend-mode:difference]", PLATE_CLIP)}
+              />
+              <Wordmark
+                className={cx("z-20 text-white [mix-blend-mode:saturation]", PLATE_CLIP)}
+              />
+            </motion.div>
+
+            {/* 4 — scroll cue */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.1, ease: EASE }}
+              className="t-overline absolute inset-x-0 bottom-8 z-40 text-center !text-burgundy"
+            >
+              Scroll
+            </motion.p>
           </motion.div>
-
-          {/* Hairline that draws across the bottom — the page waiting underneath */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: EASE }}
-            className="h-px origin-left bg-mist/50"
-          />
         </motion.div>
       )}
     </AnimatePresence>
