@@ -90,7 +90,7 @@ const REVEAL_TO = "inset(19% 0% 0% 0%)";
 function Wordmark({ className }: { className?: string }) {
   return (
     <div
-      className={cx("absolute inset-0 flex flex-col justify-center px-[4vw]", className)}
+      className={cx("absolute inset-0 flex flex-col justify-center px-[8vw]", className)}
     >
       {NAME_LINES.map((line, i) => (
         <motion.p
@@ -99,7 +99,7 @@ function Wordmark({ className }: { className?: string }) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 + i * 0.12, ease: EASE }}
           className={cx(
-            "font-serif text-[clamp(3rem,13.5vw,10.5rem)] font-light leading-[1.02]",
+            "font-serif text-[clamp(3rem,13.5vw,10.5rem)] font-light leading-[0.98]",
             line.align
           )}
         >
@@ -145,19 +145,22 @@ export default function HomeIntro() {
     setActive(false);
   };
 
-  // Slideshow rhythm: the first photo rides the loading reveal; once the
-  // plate is full, a new project photo every FLASH_LOOP_MS — the intro holds
+  // Slideshow rhythm: the first photo rides the loading reveal; the show
+  // starts rolling right after the plate is full (first change almost
+  // immediately), then a new project photo every FLASH_LOOP_MS — holding
   // this constant, calm shifting until the user scrolls.
   useEffect(() => {
     if (!active || !mounted) return;
     let i = 0;
     let loop: number | undefined;
     const start = window.setTimeout(() => {
+      i = 1;
+      setFrame(1);
       loop = window.setInterval(() => {
         i += 1;
         setFrame(i % FLASH_IMAGES.length);
       }, FLASH_LOOP_MS);
-    }, REVEAL_DELAY_MS + REVEAL_DURATION_MS + 200);
+    }, REVEAL_DELAY_MS + REVEAL_DURATION_MS + 150);
     return () => {
       window.clearTimeout(start);
       if (loop) window.clearInterval(loop);
@@ -249,6 +252,10 @@ export default function HomeIntro() {
               <Wordmark
                 className={cx("z-20 text-white [mix-blend-mode:saturation]", PLATE_CLIP)}
               />
+              {/* translucent warm grey copy: compresses contrast so bright
+                  fields inside the fill sit closer to the rest — a uniform,
+                  calm letter texture */}
+              <Wordmark className={cx("z-30 text-mist/45", PLATE_CLIP)} />
             </motion.div>
 
             {/* 4 — scroll cue */}
