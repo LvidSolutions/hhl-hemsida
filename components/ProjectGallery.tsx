@@ -42,15 +42,15 @@ export default function ProjectGallery({ items, columns = 3, showCategories = tr
 
   const columnClass =
     columns === 3 ? "columns-1 sm:columns-2 lg:columns-3" : "columns-1 sm:columns-2";
-  const gutterClass = columns === 3 ? "gap-x-5 lg:gap-x-6" : "gap-x-8 lg:gap-x-14";
-  const tileGap = columns === 3 ? "mb-5 lg:mb-6" : "mb-8 lg:mb-12";
+  const gutterClass = columns === 3 ? "gap-x-6 lg:gap-x-8" : "gap-x-8 lg:gap-x-14";
+  const tileGap = columns === 3 ? "mb-6 lg:mb-8" : "mb-8 lg:mb-12";
   const sizes =
     columns === 3
       ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 32vw"
       : "(max-width: 640px) 100vw, 48vw";
 
   return (
-    <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
+    <div className="bleed">
       {showCategories && (
         /* Category row — Sergison Bates' "Selected / …" */
         <nav aria-label="Project categories" className="flex flex-wrap items-baseline gap-x-6 gap-y-2 pb-10 lg:pb-14">

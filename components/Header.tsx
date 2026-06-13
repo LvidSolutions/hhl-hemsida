@@ -73,7 +73,7 @@ export default function Header() {
         >
           <div
             className={cx(
-              "site flex h-[60px] items-center justify-between lg:h-[72px]",
+              "bleed flex h-[60px] items-center justify-between lg:h-[72px]",
               onDark ? "text-warmwhite" : "text-graphite"
             )}
           >

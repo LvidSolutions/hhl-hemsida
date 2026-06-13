@@ -35,7 +35,7 @@ export default function HomePage() {
           intro, the page's main content */}
       <section className="pt-28 lg:pt-40" aria-labelledby="featured-heading">
         <span id="featured-heading" className="sr-only">Selected work</span>
-        <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
+        <div className="bleed">
           <SectionHeader index="01" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
         </div>
         <ProjectGallery items={portfolio} columns={3} showCategories={false} />

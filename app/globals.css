@@ -49,6 +49,18 @@
   .site {
     @apply mx-auto w-full max-w-site px-5 sm:px-12 lg:px-20;
   }
+
+  /*
+   * Near-full-viewport editorial width (the Sergison Bates "magazine wall"):
+   * no max-width cap, small symmetric side gutters that grow gently with the
+   * viewport. Used for the homepage portfolio gallery, its section header and
+   * the site header bar so they share one widened edge alignment.
+   */
+  .bleed {
+    width: 100%;
+    padding-left: clamp(1rem, 2vw, 2rem);
+    padding-right: clamp(1rem, 2vw, 2rem);
+  }
   .grid-12 {
     @apply grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-5 lg:grid-cols-12 lg:gap-6;
   }
