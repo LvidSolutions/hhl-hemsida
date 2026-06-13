@@ -1,7 +1,7 @@
 import Link from "next/link";
 import HeroJourney, { type JourneyItem, type JourneyFinal } from "@/components/HeroJourney";
 import HomeIntro from "@/components/HomeIntro";
-import FeaturedProjects from "@/components/FeaturedProjects";
+import ProjectGallery from "@/components/ProjectGallery";
 import SectionHeader from "@/components/SectionHeader";
 import ResearchCard from "@/components/ResearchCard";
 import JournalCard from "@/components/JournalCard";
@@ -70,7 +70,6 @@ const JOURNEY_FINAL: JourneyFinal = {
 };
 
 export default function HomePage() {
-  const featured = projects.filter((p) => p.featured);
   const current = [
     { status: "Under construction", title: "Kvarteret Tegel Housing", note: "Facade brickwork reaches level four.", href: "/projects/kvarteret-tegel" },
     { status: "Competition", title: "Kalmar Stations", note: "Two stations, one constructive language. (Sample status.)", href: "/projects/kalmar-stations" },
@@ -103,8 +102,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 02 — Selected work */}
-      <FeaturedProjects projects={featured.slice(0, 4)} />
+      {/* 02 — Selected work (Sergison Bates-style image grid) */}
+      <section aria-labelledby="featured-heading">
+        <span id="featured-heading" className="sr-only">Selected work</span>
+        <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
+          <SectionHeader index="02" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
+        </div>
+        <ProjectGallery projects={projects} columns={3} showCategories={false} />
+      </section>
 
       {/* 03 — The archive (mini-index on the stone band) */}
       <section className="mt-32 bg-stone py-24 lg:mt-40 lg:py-32" aria-labelledby="archive-h">
