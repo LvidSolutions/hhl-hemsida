@@ -84,10 +84,19 @@ export default function HomePage() {
 
       <HeroJourney items={JOURNEY} final={JOURNEY_FINAL} />
 
-      {/* 01 — Studio statement */}
+      {/* 01 — Selected work (Sergison Bates-style image grid) — first after the hero */}
+      <section className="pt-24 lg:pt-32" aria-labelledby="featured-heading">
+        <span id="featured-heading" className="sr-only">Selected work</span>
+        <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
+          <SectionHeader index="01" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
+        </div>
+        <ProjectGallery projects={projects} columns={3} showCategories={false} />
+      </section>
+
+      {/* 02 — Studio statement */}
       <section className="site pb-32 pt-32 lg:pb-40 lg:pt-48" aria-labelledby="statement">
         <div className="grid-12">
-          <span aria-hidden className="t-caption col-span-1 hidden lg:block">01 —</span>
+          <span aria-hidden className="t-caption col-span-1 hidden lg:block">02 —</span>
           <Reveal className="col-span-4 sm:col-span-8 lg:col-span-8 lg:col-start-3">
             <p id="statement" className="font-serif text-[22px] font-light leading-[1.45] text-graphite sm:text-[26px] lg:text-[34px] lg:leading-[1.35]">
               Hermansson Hiller Lundberg is an architecture practice in Stockholm. We work toward an
@@ -100,15 +109,6 @@ export default function HomePage() {
             </Link>
           </Reveal>
         </div>
-      </section>
-
-      {/* 02 — Selected work (Sergison Bates-style image grid) */}
-      <section aria-labelledby="featured-heading">
-        <span id="featured-heading" className="sr-only">Selected work</span>
-        <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
-          <SectionHeader index="02" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
-        </div>
-        <ProjectGallery projects={projects} columns={3} showCategories={false} />
       </section>
 
       {/* 03 — The archive (mini-index on the stone band) */}

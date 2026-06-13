@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cx } from "@/lib/utils";
 
@@ -26,17 +26,13 @@ export default function Header() {
   const pathname = usePathname();
   const overlay = pathname === "/" || /^\/projects\/[^/]+$/.test(pathname);
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
-  const lastY = useRef(0);
   const reduce = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > (overlay ? window.innerHeight * 0.7 : 8));
-      setHidden(y > 600 && y > lastY.current && !open);
-      lastY.current = y;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -63,12 +59,7 @@ export default function Header() {
         Skip to content
       </a>
 
-      <header
-        className={cx(
-          "fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-architectural",
-          hidden && "-translate-y-full"
-        )}
-      >
+      <header className="fixed inset-x-0 top-0 z-50">
         <div
           className={cx(
             "transition-colors duration-300",
