@@ -83,6 +83,10 @@ export interface Project {
   heroImage?: string; // real hero image path — placeholder renders when absent
   heroAlt?: string;
   thumbnailImage?: string; // card image; falls back to heroImage, then placeholder
+  /** Portfolio masonry image; falls back to thumbnailImage → heroImage. */
+  portfolioImage?: string;
+  /** Display ratio for the portfolio masonry tile (drives the staggered rhythm). */
+  portfolioRatio?: "3:2" | "4:3" | "4:5" | "1:1";
   featured: boolean;
   sample?: boolean; // true = project facts are placeholders
   materialsTags: string[];
@@ -125,6 +129,7 @@ export const projects: Project[] = [
     heroImage: "/hhl-images/hhl-01.jpg",
     heroAlt: "House Norrnäs seen through tall pines in morning fog, its flat roof hovering over fully glazed walls on a granite outcrop",
     thumbnailImage: "/hhl-images/hhl-02.jpg",
+    portfolioRatio: "4:3",
     featured: true,
     materialsTags: ["Concrete", "Timber"],
     narrative: {
@@ -220,6 +225,9 @@ export const projects: Project[] = [
     summary:
       "House Juniskär is conceived as a reflection on the theme of the domestic. Two clear volumes of different proportion and height adapt the house to its sloping site and allow an interior variety of interlocking spaces — a Raumplan. The house has a kind of doubleness, a Janus-character: formal and symmetrical toward the garden, informal and plastic toward the entrance. Inside, the spatial sequence turns horizontally and vertically around the large stair that connects all levels.",
     heroLabel: "[Full-bleed exterior photograph — two volumes on a sloping site]",
+    heroImage: "/hhl-images/hero/juniskar-01.webp",
+    heroAlt: "House Juniskär: two pitched brick volumes of different height on a garden slope, tall windows set deep in the masonry, pines and shrubs around",
+    portfolioRatio: "3:2",
     featured: true,
     materialsTags: ["Timber", "Panel"],
     narrative: {
@@ -273,6 +281,7 @@ export const projects: Project[] = [
     heroLabel: "[Full-bleed exterior photograph — brick housing block]",
     heroImage: "/hhl-images/hhl-04.jpg",
     heroAlt: "A long brick housing block with regular window bays and dark rooftop volumes, trees in front and an archipelago waterscape behind",
+    portfolioRatio: "3:2",
     featured: true,
     sample: true,
     materialsTags: ["Brick"],
@@ -359,6 +368,8 @@ export const projects: Project[] = [
     heroLabel: "[Exterior photograph — timber school building]",
     heroImage: "/hhl-images/hhl-06.jpg",
     heroAlt: "A green-painted timber school building with a low pyramidal sheet-metal roof and a colonnaded veranda, young trees and benches in the yard",
+    portfolioImage: "/hhl-images/hhl-07.jpg",
+    portfolioRatio: "4:5",
     featured: true,
     sample: true,
     materialsTags: ["Timber"],
@@ -428,6 +439,7 @@ export const projects: Project[] = [
     heroLabel: "[Exterior photograph — black pavilion in oak woodland]",
     heroImage: "/hhl-images/hhl-12.jpg",
     heroAlt: "A low rectangular pavilion of black vertical timber and full-height glazing with a green meadow roof, seen from above in a forest clearing",
+    portfolioRatio: "3:2",
     featured: false,
     sample: true,
     materialsTags: ["Timber"],
@@ -479,6 +491,8 @@ export const projects: Project[] = [
     heroImage: "/hhl-images/hhl-09.jpg",
     heroAlt: "Rendered view of a long pale station building with a deep horizontal lamella facade, a round window in its end gable, and KALMAR CENTRAL in open letters on the parapet",
     thumbnailImage: "/hhl-images/hhl-11.jpg",
+    portfolioImage: "/hhl-images/hhl-11.jpg",
+    portfolioRatio: "4:5",
     featured: true,
     sample: true,
     materialsTags: ["Concrete"],

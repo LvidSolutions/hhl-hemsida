@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ProjectArchive from "@/components/ProjectArchive";
+import ProjectGallery from "@/components/ProjectGallery";
 import { projects } from "@/data/projects";
 
 export const metadata: Metadata = {
@@ -9,14 +9,9 @@ export const metadata: Metadata = {
 
 export default function ProjectsPage() {
   return (
-    <div className="site pb-32 pt-32 lg:pt-44">
-      <header className="mb-14">
-        <h1 className="font-serif text-4xl font-light text-graphite lg:text-6xl">Projects</h1>
-        <p className="t-label mt-4 max-w-measure text-greytext">
-          One archive, several readings. Filters combine; the index view lists everything.
-        </p>
-      </header>
-      <ProjectArchive projects={projects} />
+    <div className="pb-32 pt-28 lg:pt-36">
+      <h1 className="sr-only">Projects</h1>
+      <ProjectGallery projects={projects} />
     </div>
   );
 }
