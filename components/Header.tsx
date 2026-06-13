@@ -32,12 +32,25 @@ export default function Header() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > (overlay ? window.innerHeight * 0.7 : 8));
+      if (pathname === "/") {
+        // Home: stay transparent/integrated through the full hero journey,
+        // then settle into a solid sticky block the moment the gallery
+        // (the first main-UI section) reaches the top of the viewport.
+        const section = document.getElementById("featured-heading")?.closest("section");
+        const reached = section ? section.getBoundingClientRect().top <= 80 : y > window.innerHeight;
+        setScrolled(reached);
+      } else {
+        setScrolled(y > (overlay ? window.innerHeight * 0.7 : 8));
+      }
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [overlay, open]);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [overlay, pathname]);
 
   useEffect(() => setOpen(false), [pathname]);
 
