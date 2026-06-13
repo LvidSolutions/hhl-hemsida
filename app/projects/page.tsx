@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ProjectGallery from "@/components/ProjectGallery";
-import { projects } from "@/data/projects";
+import { portfolio } from "@/data/portfolio";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -11,7 +11,7 @@ export default function ProjectsPage() {
   return (
     <div className="pb-32 pt-28 lg:pt-36">
       <h1 className="sr-only">Projects</h1>
-      <ProjectGallery projects={projects} />
+      <ProjectGallery items={portfolio} columns={3} showCategories />
     </div>
   );
 }

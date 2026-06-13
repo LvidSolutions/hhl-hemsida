@@ -4,47 +4,55 @@ import Link from "next/link";
 import { useState } from "react";
 import HHLImage from "@/components/HHLImage";
 import { cx } from "@/lib/utils";
-import { typologies, type Project } from "@/data/projects";
+import { portfolioCategories, type PortfolioItem } from "@/data/portfolio";
 
 /**
  * Portfolio presentation in the manner of Sergison Bates' project pages:
- * a quiet, image-led masonry with no cards, borders or shadows. Tiles of
- * mixed aspect ratio pack into columns (one on mobile) with consistent
- * gutters and tight page margins, so the photographs carry the page.
+ * a quiet, image-led archive with no cards, borders or shadows. Tiles of
+ * mixed orientation pack into columns (three on desktop, fewer on smaller
+ * screens) with consistent gutters and tight page margins, so the
+ * photographs carry the page.
  *
  * An optional restrained text row stands in for their category navigation
- * (Selected / Dwelling / Culture …): "Selected" shows everything, each
- * typology narrows the set. Project name and place are held back until
- * hover — the grid reads as pictures first, captions second — while the
- * link's aria-label keeps every tile named for assistive tech and on
- * touch devices, where the tap simply navigates.
+ * (Selected / typologies): "Selected" shows everything, each category
+ * narrows the set. Title and place are held back until hover — the grid
+ * reads as pictures first, captions second — while each link's aria-label
+ * keeps every tile named for assistive tech and on touch devices, where
+ * the tap simply navigates.
+ *
+ * The same component (and the same data/portfolio.ts set) drives both the
+ * homepage section and the Projects page, so there is one portfolio system.
  */
 
 const ALL = "Selected";
 
 interface Props {
-  projects: Project[];
-  /** Column count at the widest breakpoint (2 = "Selected" page, 3 = denser grid). */
+  items: PortfolioItem[];
+  /** Column count at the widest breakpoint (homepage and Projects both use 3). */
   columns?: 2 | 3;
-  /** Show the Selected / typologies category row. */
+  /** Show the Selected / categories row (Projects page) or not (homepage). */
   showCategories?: boolean;
 }
 
-export default function ProjectGallery({ projects, columns = 2, showCategories = true }: Props) {
+export default function ProjectGallery({ items, columns = 3, showCategories = true }: Props) {
   const [category, setCategory] = useState<string>(ALL);
-  const categories = [ALL, ...typologies];
+  const categories = [ALL, ...portfolioCategories];
   const filtered =
-    showCategories && category !== ALL ? projects.filter((p) => p.typology === category) : projects;
+    showCategories && category !== ALL ? items.filter((p) => p.type === category) : items;
 
   const columnClass =
     columns === 3 ? "columns-1 sm:columns-2 lg:columns-3" : "columns-1 sm:columns-2";
   const gutterClass = columns === 3 ? "gap-x-5 lg:gap-x-6" : "gap-x-8 lg:gap-x-14";
   const tileGap = columns === 3 ? "mb-5 lg:mb-6" : "mb-8 lg:mb-12";
+  const sizes =
+    columns === 3
+      ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 32vw"
+      : "(max-width: 640px) 100vw, 48vw";
 
   return (
     <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
       {showCategories && (
-        /* Category row — Sergison Bates' "Selected / Dwelling / Culture …" */
+        /* Category row — Sergison Bates' "Selected / …" */
         <nav aria-label="Project categories" className="flex flex-wrap items-baseline gap-x-6 gap-y-2 pb-10 lg:pb-14">
           {categories.map((c) => (
             <button
@@ -63,47 +71,44 @@ export default function ProjectGallery({ projects, columns = 2, showCategories =
         </nav>
       )}
 
-      {/* Masonry — mixed ratios, packed into columns */}
+      {/* Masonry — mixed orientation, packed into columns */}
       <div className={cx(columnClass, gutterClass)}>
-        {filtered.map((p) => (
-          <Link
-            key={p.slug}
-            href={`/projects/${p.slug}`}
-            aria-label={`${p.title}, ${p.place}`}
-            className={cx("group block break-inside-avoid", tileGap)}
-          >
-            <div className="frame relative">
-              <HHLImage
-                src={p.portfolioImage ?? p.thumbnailImage ?? p.heroImage}
-                alt={p.heroAlt}
-                label={p.heroLabel}
-                ratio={p.portfolioRatio ?? "3:2"}
-                breathe
-                sizes={
-                  columns === 3
-                    ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 32vw"
-                    : "(max-width: 640px) 100vw, 48vw"
-                }
-              />
-              {/* Hover scrim + caption — held back until hover/focus */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-graphite/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 font-sans text-sm tracking-label text-warmwhite opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 lg:p-5"
-              >
-                <span>
-                  {p.title}, {p.place}
+        {filtered.map((p, i) => {
+          const caption = p.location ? `${p.title}, ${p.location}` : p.title;
+          return (
+            <Link
+              key={`${p.image}-${i}`}
+              href={p.href ?? "/projects"}
+              aria-label={caption}
+              className={cx("group block break-inside-avoid", tileGap)}
+            >
+              <div className="frame relative">
+                <HHLImage
+                  src={p.image}
+                  alt={p.alt}
+                  label={p.title}
+                  ratio={p.ratio}
+                  breathe
+                  sizes={sizes}
+                />
+                {/* Hover scrim + caption — held back until hover/focus */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-graphite/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 font-sans text-sm tracking-label text-warmwhite opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 lg:p-5"
+                >
+                  <span>{caption}</span>
+                  <span aria-hidden className="shrink-0 text-base leading-none opacity-80">
+                    +
+                  </span>
                 </span>
-                <span aria-hidden className="shrink-0 text-base leading-none opacity-80">
-                  +
-                </span>
-              </span>
-            </div>
-          </Link>
-        ))}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

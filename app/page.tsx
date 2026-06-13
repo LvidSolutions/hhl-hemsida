@@ -8,6 +8,7 @@ import JournalCard from "@/components/JournalCard";
 import HHLImage from "@/components/HHLImage";
 import Reveal from "@/components/Reveal";
 import { projects } from "@/data/projects";
+import { portfolio } from "@/data/portfolio";
 import { research } from "@/data/research";
 import { journal } from "@/data/journal";
 
@@ -90,7 +91,7 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
           <SectionHeader index="01" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
         </div>
-        <ProjectGallery projects={projects} columns={3} showCategories={false} />
+        <ProjectGallery items={portfolio} columns={3} showCategories={false} />
       </section>
 
       {/* 02 — Studio statement */}
