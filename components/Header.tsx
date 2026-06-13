@@ -24,7 +24,10 @@ const SECONDARY = ["Archive", "Map", "Timeline", "Collections"] as const;
  */
 export default function Header() {
   const pathname = usePathname();
-  const overlay = pathname === "/" || /^\/projects\/[^/]+$/.test(pathname);
+  // Only project detail pages carry a full-bleed hero that the header floats
+  // over transparently; everywhere else (home included) the header is a solid,
+  // readable strip from the start.
+  const overlay = /^\/projects\/[^/]+$/.test(pathname);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -32,25 +35,12 @@ export default function Header() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      if (pathname === "/") {
-        // Home: stay transparent/integrated through the full hero journey,
-        // then settle into a solid sticky block the moment the gallery
-        // (the first main-UI section) reaches the top of the viewport.
-        const section = document.getElementById("featured-heading")?.closest("section");
-        const reached = section ? section.getBoundingClientRect().top <= 80 : y > window.innerHeight;
-        setScrolled(reached);
-      } else {
-        setScrolled(y > (overlay ? window.innerHeight * 0.7 : 8));
-      }
+      setScrolled(y > (overlay ? window.innerHeight * 0.7 : 8));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [overlay, pathname]);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [overlay]);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -76,7 +66,7 @@ export default function Header() {
         <div
           className={cx(
             "transition-colors duration-300",
-            scrolled && !open
+            (!overlay || scrolled) && !open
               ? "border-b border-[var(--hairline)] bg-warmwhite/[0.97] backdrop-blur-md"
               : "bg-transparent"
           )}

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import HeroJourney, { type JourneyItem, type JourneyFinal } from "@/components/HeroJourney";
 import HomeIntro from "@/components/HomeIntro";
 import ProjectGallery from "@/components/ProjectGallery";
 import SectionHeader from "@/components/SectionHeader";
@@ -19,57 +18,6 @@ const RECOGNITION: Array<{ year: string; text: string; type: string }> = [
   { year: "2023", text: "Regional masonry award shortlist, Kvarteret Tegel (sample)", type: "Award" },
 ];
 
-/**
- * The scroll journey after the intro: five images drifting upward with
- * scroll, closed by the full-bleed identity panel. Norrnäs and Juniskär use
- * the studio's own photographs of those projects; the remaining three are
- * indicative HHL image pairings for the sample projects (see
- * /public/hhl-images/hero/README.md and the note atop data/projects.ts).
- */
-const JOURNEY: JourneyItem[] = [
-  {
-    src: "/hhl-images/hero/norrnas-03.webp",
-    alt: "House Norrnäs: a glazed pavilion on a low concrete platform in a foggy meadow",
-    title: "House Norrnäs",
-    meta: "Private house · Stockholm archipelago · 2014",
-    href: "/projects/house-norrnas",
-  },
-  {
-    src: "/hhl-images/hero/juniskar-01.webp",
-    alt: "House Juniskär: two timber volumes of different heights on a sloping wooded site",
-    title: "House Juniskär",
-    meta: "Private house · Sundsvall · 2016",
-    href: "/projects/house-juniskar",
-  },
-  {
-    src: "/hhl-images/hero/civic-street.webp",
-    alt: "A pale arched building spanning a street between brick industrial facades",
-    title: "Kvarteret Tegel Housing",
-    meta: "Housing · Stockholm · 2023",
-    href: "/projects/kvarteret-tegel",
-  },
-  {
-    src: "/hhl-images/hero/school-birches.webp",
-    alt: "A green timber school building with a sheet-metal roof seen through birch trunks",
-    title: "Timber School Uppsala",
-    meta: "Education · Uppsala · 2027",
-    href: "/projects/timber-school-uppsala",
-  },
-  {
-    src: "/hhl-images/hero/civic-glass.webp",
-    alt: "A gabled civic building with a fully glazed ground floor on a tree-lined street",
-    title: "Kalmar Stations",
-    meta: "Public · Kalmar · 2026",
-    href: "/projects/kalmar-stations",
-  },
-];
-
-const JOURNEY_FINAL: JourneyFinal = {
-  src: "/hhl-images/hero/norrnas-02.webp",
-  alt: "House Norrnäs among tall pines in morning fog, its flat roof hovering over glazed walls",
-  caption: "House Norrnäs — Stockholm archipelago",
-};
-
 export default function HomePage() {
   const current = [
     { status: "Under construction", title: "Kvarteret Tegel Housing", note: "Facade brickwork reaches level four.", href: "/projects/kvarteret-tegel" },
@@ -83,10 +31,9 @@ export default function HomePage() {
 
       <HomeIntro />
 
-      <HeroJourney items={JOURNEY} final={JOURNEY_FINAL} />
-
-      {/* 01 — Selected work (Sergison Bates-style image grid) — first after the hero */}
-      <section className="pt-24 lg:pt-32" aria-labelledby="featured-heading">
+      {/* 01 — Selected work (Sergison Bates-style image grid) — first after the
+          intro, the page's main content */}
+      <section className="pt-28 lg:pt-40" aria-labelledby="featured-heading">
         <span id="featured-heading" className="sr-only">Selected work</span>
         <div className="mx-auto w-full max-w-site px-5 sm:px-8 lg:px-10">
           <SectionHeader index="01" label="Selected work" link={{ label: "All projects", href: "/projects" }} />
